@@ -9,8 +9,7 @@ export async function notify(): Promise<void> {
         target_list_on_cards = (target_list_on_cards == null) ? list_on_cards.data : target_list_on_cards.concat(list_on_cards.data)
     }
 
-    let today = format(new Date(), 'yyyy-MM-dd')
-    //today = '2020-09-02'
+    let today = format(new Date(), 'yyyy-MM-dd', {})
     console.log('today : ' + today)
 
     const tasks_due_today = target_list_on_cards.filter((v: any) => (v['due'] != null && v['due'].slice(0, 10) === today && !v['dueComplete']))
@@ -73,6 +72,10 @@ async function notifySlackOfOverdueTasks(task: any): Promise<void> {
 async function getSlackUserId(memberId: string): Promise<string> {
     let response = await soxa.get('https://api.trello.com/1/members/' + memberId + '?key=' + settings.trello.auth.key + '&token=' + settings.trello.auth.token)
     const usr = settings.users.find((user: any) => user.trello_username === response.data['username'])
+    if (usr == null) {
+        console.log(memberId + "のslackメンバーIDが未定義です")
+        return ''
+    }
     return usr.slack_member_id
 }
 
